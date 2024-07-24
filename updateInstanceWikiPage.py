@@ -17,16 +17,22 @@ INSTANCE_IP = morpheus['instance']['container']['internalIp']
 APPLIANCE_URL = morpheus['morpheus']['applianceUrl']
 API_ACCESS_TOKEN = morpheus['morpheus']['apiAccessToken']
 
-def isValidAccessToken(TOKEN):
-	GET_WIKI_PAGE = f"{APPLIANCE_URL}/api/instances/{INSTANCE_ID}/wiki"
-	VALIDATION_RESPONSE = requests.get(GET_WIKI_PAGE, headers=HEADERS, verify=False)
-	if VALIDATION_RESPONSE.status_code == 404:
-		logger.error("Instance not found! Please double-check the Wiki page URL and ensure that you have a valid API Token set")
-		return False
-	else:
-		return True
-		
-TOKEN = morpheus['morpheus']['apiAccessToken'] if isValidAccessToken(API_ACCESS_TOKEN) else sys.argv[1]
+def isValidAccessToken(token):
+    GET_WIKI_PAGE = f"{APPLIANCE_URL}/api/instances/{INSTANCE_ID}/wiki"
+    VALIDATION_RESPONSE = requests.get(GET_WIKI_PAGE, headers={"Authorization": f"{token}"}, verify=False)
+    if VALIDATION_RESPONSE.status_code == 404:
+        logger.error("Instance not found! Please double-check the Wiki page URL and ensure that you have a valid API Token set")
+        return False
+    else:
+        return True
+
+
+# Determine the access token to be used - i.e. use the one that returns a 200 response from GET_WIKI_PAGE
+if isValidAccessToken(API_ACCESS_TOKEN):
+    TOKEN = API_ACCESS_TOKEN
+else:
+    TOKEN = sys.argv[1]
+
 HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
 
 UPDATE_WIKI_PAGE = f"{APPLIANCE_URL}/api/instances/{INSTANCE_ID}/wiki"  								
