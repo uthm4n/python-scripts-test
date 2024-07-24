@@ -1,3 +1,4 @@
+############################## Contributors: Kai Nunnemann. This script is an adaptation of the original. ################################
 import sys
 sys.path.append('/usr/lib/python3/dist-packages')
 
