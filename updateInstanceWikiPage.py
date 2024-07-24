@@ -15,13 +15,14 @@ INSTANCE_ID = morpheus['instance']['id']
 INSTANCE_IP = morpheus['instance']['container']['internalIp']
 
 APPLIANCE_URL = morpheus['morpheus']['applianceUrl']
-TOKEN = morpheus['morpheus']['apiAccessToken'] 
+API_ACCESS_TOKEN = morpheus['morpheus']['apiAccessToken']
+TOKEN = morpheus['morpheus']['apiAccessToken'] if isValidAccessToken(API_ACCESS_TOKEN) else sys.argv[1]
 
 HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
 
 def isValidAccessToken(TOKEN):
-	WIKI_PAGE = f"{APPLIANCE_URL}/api/instances/{INSTANCE_ID}/wiki"
-	VALIDATION_RESPONSE = requests.get(WIKI_PAGE, headers=HEADERS, verify=False)
+	GET_WIKI_PAGE = f"{APPLIANCE_URL}/api/instances/{INSTANCE_ID}/wiki"
+	VALIDATION_RESPONSE = requests.get(GET_WIKI_PAGE, headers=HEADERS, verify=False)
 	if VALIDATION_RESPONSE.status_code == 404:
 		logger.error("Instance not found! Please double-check the Wiki page URL and ensure that you have a valid API Token set")
 		return False
@@ -29,7 +30,7 @@ def isValidAccessToken(TOKEN):
 		return True
 	
 
-URL = f"{APPLIANCE_URL}/api/instances/{INSTANCE_ID}/wiki"  								
+UPDATE_WIKI_PAGE = f"{APPLIANCE_URL}/api/instances/{INSTANCE_ID}/wiki"  								
 PAYLOAD = {"page": {"content": f"# Usage Information\r\n***\r\n\r\nOracle Linux Server for personal usage - this is a basic setup only. You can logon at `{INSTANCE_IP}` via SSH with user `test`.\r\n\r\n## Console\r\n***\r\n\r\nYou can access the **Console** from [here](https:\/\/ueqbal-morph-appliance.localdomain\/provisioning\/instances\/{INSTANCE_ID}#!console-tab), or by clicking the appropriate Tab to the left of the current Tab.\r\n\r\n(C)2024 Uthman Test"}}
 
 try:
@@ -37,7 +38,7 @@ try:
     logger.debug(f"[VARIABLES:\r\nINSTANCE_ID: {INSTANCE_ID}\r\nINSTANCE_IP: {INSTANCE_IP}\r\nAPPLIANCE_URL: {APPLIANCE_URL}\r\nTOKEN: {TOKEN}]")
 	
     # API request to update the Wiki page
-    response = requests.put(URL, headers=HEADERS, json=PAYLOAD, verify=False)
+    response = requests.put(UPDATE_WIKI_PAGE, headers=HEADERS, json=PAYLOAD, verify=False)
     response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
 
     logger.debug("Request successful, processing response...")
