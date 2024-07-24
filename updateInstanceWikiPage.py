@@ -16,9 +16,6 @@ INSTANCE_IP = morpheus['instance']['container']['internalIp']
 
 APPLIANCE_URL = morpheus['morpheus']['applianceUrl']
 API_ACCESS_TOKEN = morpheus['morpheus']['apiAccessToken']
-TOKEN = morpheus['morpheus']['apiAccessToken'] if isValidAccessToken(API_ACCESS_TOKEN) else sys.argv[1]
-
-HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
 
 def isValidAccessToken(TOKEN):
 	GET_WIKI_PAGE = f"{APPLIANCE_URL}/api/instances/{INSTANCE_ID}/wiki"
@@ -28,7 +25,9 @@ def isValidAccessToken(TOKEN):
 		return False
 	else:
 		return True
-	
+		
+TOKEN = morpheus['morpheus']['apiAccessToken'] if isValidAccessToken(API_ACCESS_TOKEN) else sys.argv[1]
+HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
 
 UPDATE_WIKI_PAGE = f"{APPLIANCE_URL}/api/instances/{INSTANCE_ID}/wiki"  								
 PAYLOAD = {"page": {"content": f"# Usage Information\r\n***\r\n\r\nOracle Linux Server for personal usage - this is a basic setup only. You can logon at `{INSTANCE_IP}` via SSH with user `test`.\r\n\r\n## Console\r\n***\r\n\r\nYou can access the **Console** from [here](https:\/\/ueqbal-morph-appliance.localdomain\/provisioning\/instances\/{INSTANCE_ID}#!console-tab), or by clicking the appropriate Tab to the left of the current Tab.\r\n\r\n(C)2024 Uthman Test"}}
